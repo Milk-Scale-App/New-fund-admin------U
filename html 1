@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fund Money - Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <!-- Password Protection -->
+    <div id="passwordOverlay" class="password-overlay active">
+        <div class="password-box">
+            <h1>🔐 Fund Money Admin</h1>
+            <p>Administrator Login Panel</p>
+            
+            <input type="password" id="adminPassword" placeholder="Enter Admin Password">
+            <button onclick="checkAdminPassword()">Login to Admin Panel</button>
+            
+            <p id="passwordError" class="error-message">❌ Wrong password! Try again.</p>
+            
+            <div class="back-link">
+                <a href="index.html">← Back to User App</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Content -->
+    <div id="adminContent" class="admin-content">
+        <!-- Admin Header -->
+        <header class="admin-header">
+            <div class="header-left">
+                <h1>🎮 Fund Money Admin</h1>
+                <div class="admin-status" id="adminStatus">Connected</div>
+            </div>
+            <div class="header-right">
+                <button class="header-btn refresh-btn" onclick="loadAllData()">
+                    🔄 Refresh
+                </button>
+                <button class="header-btn logout-btn" onclick="logoutAdmin()">
+                    🚪 Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Admin Container -->
+        <div class="admin-container">
+            <!-- Sidebar Navigation -->
+            <nav class="admin-sidebar">
+                <div class="sidebar-section">
+                    <h3>🎯 Game Control</h3>
+                    <button class="sidebar-btn active" onclick="showAdminSection('game-control')">
+                        🎲 Game Management
+                    </button>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>👥 User Management</h3>
+                    <button class="sidebar-btn" onclick="showAdminSection('user-management')">
+                        📋 Users List
+                    </button>
+                    <button class="sidebar-btn" onclick="showAdminSection('bulk-operations')">
+                        ⚡ Bulk Operations
+                    </button>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>💰 Transactions</h3>
+                    <button class="sidebar-btn" onclick="showAdminSection('add-money-requests')">
+                        💵 Add Money
+                    </button>
+                    <button class="sidebar-btn" onclick="showAdminSection('withdrawal-requests')">
+                        🏦 Withdrawals
+                    </button>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>📊 Analytics</h3>
+                    <button class="sidebar-btn" onclick="showAdminSection('analytics')">
+                        📈 Dashboard
+                    </button>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>📢 Notifications</h3>
+                    <button class="sidebar-btn" onclick="showAdminSection('notifications')">
+                        🔔 Send Notification
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Main Content Area -->
+            <main class="admin-main">
+                <!-- Game Control Section -->
+                <section id="game-control" class="admin-section active">
+                    <h2>🎲 Game Control Panel</h2>
+                    
+                    <div class="game-status-panel">
+                        <div class="status-card">
+                            <h3>Current Game Status</h3>
+                            <div class="status-info">
+                                <p>Cycle ID: <span id="current-cycle-id">-</span></p>
+                                <p>Timer: <span id="current-timer">-</span></p>
+                                <p>Last Result: <span id="last-result-display">-</span></p>
+                                <p>Next Result: <span id="next-result-display">-</span></p>
+                            </div>
+                        </div>
+
+                        <div class="control-actions">
+                            <h3>Set Next Result</h3>
+                            <div class="result-buttons">
+                                <button class="result-btn green-btn" onclick="setNextResult('green')">
+                                    ✅ हरा (Green)
+                                </button>
+                                <button class="result-btn blue-btn" onclick="setNextResult('blue')">
+                                    🔷 नीला (Blue)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="game-stats">
+                            <h3>Game Statistics</h3>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-value" id="total-bets">0</div>
+                                    <div class="stat-label">Total Bets</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value" id="total-payout">0</div>
+                                    <div class="stat-label">Total Payout</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value" id="active-players">0</div>
+                                    <div class="stat-label">Active Players</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- User Management Section -->
+                <section id="user-management" class="admin-section">
+                    <h2>👥 User Management</h2>
+                    
+                    <div class="search-section">
+                        <input type="text" id="user-search" 
+                               placeholder="Search by email, user ID, or name...">
+                        <button onclick="searchUsers()">Search</button>
+                        <button onclick="loadAllUsers()">Show All</button>
+                    </div>
+
+                    <div class="users-list" id="users-list">
+                        <!-- Users will be loaded here dynamically -->
+                        <div class="loading-message">Loading users...</div>
+                    </div>
+
+                    <!-- User Details Modal -->
+                    <div id="user-details-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>User Details</h3>
+                                <button class="close-btn" onclick="closeUserModal()">×</button>
+                            </div>
+                            <div class="modal-body" id="user-details-content">
+                                <!-- User details will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Bulk Operations Section -->
+                <section id="bulk-operations" class="admin-section">
+                    <h2>⚡ Bulk Operations</h2>
+                    
+                    <div class="bulk-actions">
+                        <div class="bulk-action-card">
+                            <h3>🎯 Quick Actions</h3>
+                            <div class="action-buttons">
+                                <button class="bulk-btn delete-btn" onclick="bulkDeleteUsers()">
+                                    🗑️ Delete Selected
+                                </button>
+                                <button class="bulk-btn block-btn" onclick="bulkBlockUsers()">
+                                    🚫 Block Selected
+                                </button>
+                                <button class="bulk-btn unblock-btn" onclick="bulkUnblockUsers()">
+                                    ✅ Unblock Selected
+                                </button>
+                                <button class="bulk-btn reset-btn" onclick="bulkResetBalances()">
+                                    💰 Reset Balances
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="selection-info">
+                            <p>Selected: <span id="selected-count">0</span> users</p>
+                            <button onclick="clearSelection()">Clear Selection</button>
+                        </div>
+                    </div>
+
+                    <div class="bulk-stats">
+                        <h3>User Statistics</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="total-users">0</div>
+                                <div class="stat-label">Total Users</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="active-users">0</div>
+                                <div class="stat-label">Active</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="blocked-users">0</div>
+                                <div class="stat-label">Blocked</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="deleted-users">0</div>
+                                <div class="stat-label">Deleted</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Add Money Requests Section -->
+                <section id="add-money-requests" class="admin-section">
+                    <h2>💵 Add Money Requests</h2>
+                    
+                    <div class="requests-container" id="add-money-requests-list">
+                        <div class="loading-message">Loading requests...</div>
+                    </div>
+                </section>
+
+                <!-- Withdrawal Requests Section -->
+                <section id="withdrawal-requests" class="admin-section">
+                    <h2>🏦 Withdrawal Requests</h2>
+                    
+                    <div class="requests-container" id="withdrawal-requests-list">
+                        <div class="loading-message">Loading requests...</div>
+                    </div>
+                </section>
+
+                <!-- Analytics Section -->
+                <section id="analytics" class="admin-section">
+                    <h2>📊 Analytics Dashboard</h2>
+                    
+                    <div class="analytics-grid">
+                        <div class="analytics-card profit-card">
+                            <h3>💰 Today's Profit</h3>
+                            <div class="analytics-value">₹<span id="today-profit">0</span></div>
+                            <div class="analytics-trend">↑ 12% from yesterday</div>
+                        </div>
+                        
+                        <div class="analytics-card revenue-card">
+                            <h3>📈 Total Revenue</h3>
+                            <div class="analytics-value">₹<span id="total-revenue">0</span></div>
+                            <div class="analytics-trend">↑ 8% this week</div>
+                        </div>
+                        
+                        <div class="analytics-card users-card">
+                            <h3>👥 User Growth</h3>
+                            <div class="analytics-value"><span id="total-users-count">0</span></div>
+                            <div class="analytics-trend">↑ 15 new today</div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-actions">
+                        <button class="export-btn" onclick="exportDailyReport()">
+                            📊 Export Daily Report
+                        </button>
+                        <button class="refresh-btn" onclick="loadAnalytics()">
+                            🔄 Refresh Analytics
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Notifications Section -->
+                <section id="notifications" class="admin-section">
+                    <h2>📢 Send Notification</h2>
+                    
+                    <div class="notification-form">
+                        <div class="input-group">
+                            <label for="notification-title">Notification Title</label>
+                            <input type="text" id="notification-title" 
+                                   placeholder="Enter notification title...">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="notification-message">Message</label>
+                            <textarea id="notification-message" 
+                                      placeholder="Enter notification message..." 
+                                      rows="4"></textarea>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="notification-image">Image URL (Optional)</label>
+                            <input type="url" id="notification-image" 
+                                   placeholder="https://example.com/image.jpg">
+                        </div>
+                        
+                        <button class="send-notification-btn" onclick="sendNotification()">
+                            📢 Send Notification to All Users
+                        </button>
+                    </div>
+
+                    <div class="notification-history">
+                        <h3>📋 Sent Notifications</h3>
+                        <div id="notifications-history-list">
+                            <div class="loading-message">Loading history...</div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
